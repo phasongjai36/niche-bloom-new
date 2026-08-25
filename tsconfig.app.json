@@ -19,15 +19,13 @@
     /* Linting */
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": true,
 
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    },
-    "ignoreDeprecations": "6.0"
+    }
   },
   "include": ["src"]
 }
