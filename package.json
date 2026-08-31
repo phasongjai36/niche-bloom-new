@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@types/qrcode": "^1.5.6",
-    "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.510.0",
     "qrcode": "^1.5.4",

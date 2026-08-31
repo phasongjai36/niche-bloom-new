@@ -41,10 +41,21 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        paper: "hsl(var(--paper))",
-        ink: "hsl(var(--ink))",
+        paper: {
+          DEFAULT: "hsl(var(--paper))",
+          2: "hsl(var(--paper-2))",
+        },
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          soft: "hsl(var(--ink-soft))",
+        },
         line: "hsl(var(--line))",
-        gold: "hsl(var(--gold))",
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          bright: "hsl(var(--gold-bright))",
+          deep: "hsl(var(--gold-deep))",
+        },
+        rose: "hsl(var(--rose))",
       },
       borderRadius: {
         lg: "var(--radius-lg)",
@@ -66,8 +77,16 @@ module.exports = {
         accordionUp: "accordionUp 0.2s ease-out",
       },
       fontFamily: {
-        display: ["'Playfair Display'", "Georgia", "serif"],
-        sans: ["'Inter'", "system-ui", "sans-serif"],
+        display: ["'Space Grotesk'", "system-ui", "sans-serif"],
+        sans: ["'DM Sans'", "system-ui", "sans-serif"],
+        mono: ["'JetBrains Mono'", "ui-monospace", "monospace"],
+      },
+      transitionTimingFunction: {
+        'out-soft': 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+      },
+      transitionDuration: {
+        '240': '240ms',
+        '800': '800ms',
       },
     },
   },
