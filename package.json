@@ -1,0 +1,40 @@
+{
+  "name": "niche-desktop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "electron": "^44.0.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "niche-desktop",
+    "productName": "NICHE BLOOM Invoice Maker",
+    "files": [
+      "index.html",
+      "assets/**/*",
+      "brand/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons.svg"
+    }
+  }
+}
