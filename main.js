@@ -50,7 +50,7 @@ ipcMain.handle('db:add-invoice', async (_, invoice) => {
 });
 
 ipcMain.handle('db:get-invoices', async () => {
-  const rows = db.all('SELECT * FROM invoices');
+  const rows = db.prepare('SELECT * FROM invoices').all();
   return rows;
 });
 
