@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 36 33% 97%;       /* warm cream */
+    --foreground: 30 14% 12%;       /* deep ink */
+    --card: 0 0% 100%;
+    --card-foreground: 30 14% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 14% 12%;
+    --primary: 43 65% 49%;          /* gold */
+    --primary-foreground: 30 14% 12%;
+    --secondary: 30 9% 80%;
+    --secondary-foreground: 30 14% 12%;
+    --muted: 30 9% 90%;
+    --muted-foreground: 30 6% 45%;
+    --accent: 43 80% 60%;
+    --accent-foreground: 30 14% 12%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 12% 86%;
+    --input: 0 0% 100%;
+    --ring: 43 65% 49%;
+
+    --paper: 36 33% 97%;
+    --ink: 30 14% 12%;
+    --line: 30 12% 86%;
+    --gold: 43 65% 49%;
+
+    --radius-sm: 0.125rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .font-display {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  article { box-shadow: none !important; }
+}
