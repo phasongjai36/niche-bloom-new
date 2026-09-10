@@ -1,15 +1,360 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="NICHE BLOOM — Invoice & Installment tracking for Thai merchants" />
-    <meta name="theme-color" content="#FAF6EC" />
-    <title>NICHE BLOOM — Invoice & Installments</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NICHE BLOOM - Invoice Maker</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #1a1a2e;
+      --accent-color: #e91e63;
+      --card-bg: #f8f9fa;
+      --border-color: #dee2e6;
+    }
+    
+    [data-theme="dark"] {
+      --bg-color: #1a1a2e;
+      --text-color: #ffffff;
+      --accent-color: #ff006e;
+      --card-bg: #2d2d3e;
+      --border-color: #4a4a5e;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Thai, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: var(--accent-color);
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .invoice-form {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text-color);
+      font-size: 14px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: var(--accent-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #d81b40;
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      margin-right: 10px;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #218838;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #c82333;
+    }
+    
+    .btn-light {
+      background: #f8f9fa;
+      color: #333;
+    }
+    
+    .invoice-list {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 25px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .invoice-list h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .invoices-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .invoices-table th,
+    .invoices-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .invoices-table th {
+      background: var(--bg-color);
+      font-weight: 600;
+    }
+    
+    .invoices-table tbody tr {
+      transition: background 0.2s ease;
+    }
+    
+    .invoices-table tbody tr:hover {
+      background: rgba(233, 30, 99, 0.05);
+    }
+    
+    .status-unpaid {
+      color: #dc3545;
+      font-weight: 500;
+    }
+    
+    .status-paid {
+      color: #28a745;
+      font-weight: 500;
+    }
+    
+    .no-invoices {
+      text-align: center;
+      color: #666;
+      padding: 40px;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .invoice-form,
+      .invoice-list {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧾 NICHE BLOOM - Invoice Maker</h1>
+    
+    <!-- Form สำหรับสร้างใบแจ้งหนี้ใหม่ -->
+    <div class="invoice-form" id="invoiceForm">
+      <h3>สร้างใบแจ้งหนี้ใหม่</h3>
+      
+      <div class="form-group">
+        <label for="invoiceNumber">เลขที่ใบแจ้งหนี้</label>
+        <input type="text" id="invoiceNumber" placeholder="เช่น INV-001">
+      </div>
+      
+      <div class="form-group">
+        <label for="customerName">ชื่อลูกค้า</label>
+        <input type="text" id="customerName" placeholder="ชื่อ-นามสกุลลูกค้า">
+      </div>
+      
+      <div class="form-group">
+        <label for="amount">จำนวนเงิน (บาท)</label>
+        <input type="number" id="amount" step="0.01" placeholder="เช่น 500.00">
+      </div>
+      
+      <div class="form-group">
+        <label for="status">สถานะ</label>
+        <select id="status">
+          <option value="unpaid">ยังไม่ได้ชำระ</option>
+          <option value="paid">ชำระแล้ว</option>
+        </select>
+      </div>
+      
+      <div style="margin-top: 20px;">
+        <button type="button" class="btn btn-primary" onclick="addInvoice()">สร้างใบแจ้งหนี้</button>
+        <button type="button" class="btn btn-secondary" onclick="clearForm()">ล้างข้อมูล</button>
+      </div>
+    </div>
+    
+    <!-- รายการใบแจ้งหนี้ -->
+    <div class="invoice-list" id="invoiceList">
+      <h3>รายการใบแจ้งหนี้ <span id="invoiceCount">0</span> ใบ</h3>
+      
+      <table class="invoices-table">
+        <thead>
+          <tr>
+            <th>เลขที่</th>
+            <th>ชื่อลูกค้า</th>
+            <th>จำนวนเงิน</th>
+            <th>สถานะ</th>
+            <th>สร้างเมื่อ</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="invoicesBody">
+          <!-- ตัวอย่างข้อมูล -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // เชื่อมต่อกับ Electron API
+    const api = window.electronAPI;
+    
+    // โหลดข้อมูลใบแจ้งหนี้เมื่อหน้าเว็บเริ่มต้น
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInvoices();
+    });
+    
+    // ฟังก์ชันโหลดข้อมูลใบแจ้งหนี้
+    async function loadInvoices() {
+      try {
+        const invoices = await api.getInvoices();
+        renderInvoices(invoices);
+        document.getElementById('invoiceCount').textContent = invoices.length;
+      } catch (error) {
+        console.error('Failed to load invoices:', error);
+      }
+    }
+    
+    // ฟังก์ชันแสดงรายการใบแจ้งหนี้
+    function renderInvoices(invoices) {
+      const tbody = document.getElementById('invoicesBody');
+      
+      if (invoices.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-invoices">ไม่มีข้อมูลใบแจ้งหนี้</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = invoices.map((invoice, index) => `
+        <tr>
+          <td>${invoice.invoice_number}</td>
+          <td>${invoice.customer_name}</td>
+          <td>${invoice.amount.toLocaleString()} บาท</td>
+          <td><span class="status-${invoice.status}">${invoice.status === 'unpaid' ? 'ยังไม่ได้ชำระ' : 'ชำระแล้ว'}</span></td>
+          <td>${new Date(invoice.created_at).toLocaleDateString('th-TH')}</td>
+          <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteInvoice(${invoice.id})">ลบ</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    // ฟังก์ชันสร้างใบแจ้งหนี้ใหม่
+    async function addInvoice() {
+      const invoiceNumber = document.getElementById('invoiceNumber').value.trim();
+      const customerName = document.getElementById('customerName').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value);
+      const status = document.getElementById('status').value;
+      
+      if (!invoiceNumber || !customerName || isNaN(amount)) {
+        alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+        return;
+      }
+      
+      try {
+        await api.addInvoice({
+          invoice_number: invoiceNumber,
+          customer_name: customerName,
+          amount: amount,
+          status: status
+        });
+        
+        // เคลียร์ฟอร์มและโหลดใหม่
+        clearForm();
+        loadInvoices();
+      } catch (error) {
+        console.error('Failed to add invoice:', error);
+        alert('เกิดข้อผิดพลาดในการสร้างใบแจ้งหนี้');
+      }
+    }
+    
+    // ฟังก์ชันล้างฟอร์ม
+    function clearForm() {
+      document.getElementById('invoiceNumber').value = '';
+      document.getElementById('customerName').value = '';
+      document.getElementById('amount').value = '';
+      document.getElementById('status').value = 'unpaid';
+    }
+    
+    // ฟังก์ชันลบใบแจ้งหนี้
+    async function deleteInvoice(id) {
+      if (confirm('คุณแน่ใจหรือไม่ที่จะลบใบแจ้งหนี้นี้?')) {
+        try {
+          await api.deleteInvoice(id);
+          loadInvoices();
+        } catch (error) {
+          console.error('Failed to delete invoice:', error);
+          alert('เกิดข้อผิดพลาดในการลบใบแจ้งหนี้');
+        }
+      }
+    }
+  </script>
+</body>
 </html>
