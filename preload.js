@@ -3,10 +3,10 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // Database operations
-  addInvoice: (invoice) => ipcRenderer.send('db:add-invoice', invoice),
+  addInvoice: (invoice) => ipcRenderer.invoke('db:add-invoice', invoice),
   getInvoices: () => ipcRenderer.invoke('db:get-invoices'),
-  deleteInvoice: (id) => ipcRenderer.send('db:delete-invoice', id),
+  deleteInvoice: (id) => ipcRenderer.invoke('db:delete-invoice', id),
 
-  // Theme toggle
+  // Theme toggle (fire-and-forget, no return value needed)
   toggleTheme: () => ipcRenderer.send('theme:toggle'),
 });
