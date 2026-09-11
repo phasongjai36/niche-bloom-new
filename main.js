@@ -33,7 +33,7 @@ function createWindow() {
     },
   });
 
-  win.loadFile('index.html');
+  win.loadFile(path.join(__dirname, 'index.html'));
 }
 
 app.whenReady().then(() => {
@@ -65,14 +65,15 @@ ipcMain.handle('db:add-invoice', async (_, invoice) => {
   }
   const invoiceNumber = String(invoice.invoice_number || '').trim();
   const customerName = String(invoice.customer_name || '').trim();
-  const amount = Number(invoice.amount);
+  // Reject coercion bypass: require a real number (reject null/true/'1' etc.)
+  if (typeof invoice.amount !== 'number' || !Number.isFinite(invoice.amount) || invoice.amount < 0) {
+    throw new Error('amount must be a finite, non-negative number');
+  }
+  const amount = invoice.amount;
   const status = String(invoice.status || 'unpaid');
 
   if (!invoiceNumber) throw new Error('invoice_number is required');
   if (!customerName) throw new Error('customer_name is required');
-  if (!Number.isFinite(amount) || amount < 0) {
-    throw new Error('amount must be a finite, non-negative number');
-  }
   if (!ALLOWED_STATUSES.has(status)) {
     throw new Error(`status must be one of: ${[...ALLOWED_STATUSES].join(', ')}`);
   }
@@ -89,11 +90,11 @@ ipcMain.handle('db:get-invoices', async () => {
 });
 
 ipcMain.handle('db:delete-invoice', async (_, id) => {
-  const idNum = Number(id);
-  if (!Number.isInteger(idNum) || idNum <= 0) {
+  // Reject coercion bypass: require a real positive integer (reject true/'1' etc.)
+  if (typeof id !== 'number' || !Number.isInteger(id) || id <= 0) {
     throw new Error('id must be a positive integer');
   }
-  const result = db.prepare('DELETE FROM invoices WHERE id = ?').run(idNum);
+  const result = db.prepare('DELETE FROM invoices WHERE id = ?').run(id);
   return { deleted: result.changes };
 });
 
