@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NICHE BLOOM — Receipt Dashboard</title>
+  <meta name="description" content="NICHE BLOOM — Curated Botanicals & Floristry | Receipt & Payment Management">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Cormorant Garamond', 'Georgia', 'serif'],
+            sans: ['Prompt', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            cream: {
+              50: '#fffdf8',
+              100: '#faf7f2',
+              200: '#f5f0e8',
+              300: '#ede5da',
+              400: '#e0d5c7',
+            },
+            gold: {
+              300: '#dcc28a',
+              400: '#c9a96a',
+              500: '#bfa373',
+              600: '#a8893f',
+              700: '#8a6e2e',
+            },
+            ink: {
+              700: '#5a4f47',
+              800: '#3d3530',
+              900: '#2a2420',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="icon" type="image/png" href="assets/logo-gold.png">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Apply saved theme before first paint to avoid a flash of the wrong theme
+    try {
+      document.documentElement.setAttribute('data-theme', localStorage.getItem('nb-theme') || 'dark');
+    } catch (e) { /* storage unavailable — keep default */ }
+  </script>
+</head>
+<body>
+
+<!-- Decorative botanical SVG pattern -->
+<svg class="botanical-bg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <pattern id="floral" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+      <g fill="none" stroke="#c9a96a" stroke-width="0.3" opacity="0.08">
+        <path d="M25 10 C20 15, 20 25, 25 30 C30 25, 30 15, 25 10 Z"/>
+        <path d="M25 30 C22 35, 22 40, 25 45 C28 40, 28 35, 25 30 Z"/>
+        <circle cx="25" cy="20" r="3"/>
+        <path d="M10 25 C15 22, 20 25, 25 25 M25 25 C30 25, 35 22, 40 25"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect width="100" height="100" fill="url(#floral)"/>
+</svg>
+
+<div id="app" class="relative z-10">
+
+  <!-- ========== HEADER ========== -->
+  <header class="header-bar">
+    <div class="header-inner">
+      <div class="brand-block">
+        <img src="assets/logo-gold.png" alt="NICHE BLOOM" class="brand-logo">
+        <div>
+          <div class="brand-tagline">CURATED BOTANICALS &amp; FLORISTRY</div>
+          <h1 class="brand-name font-display">NICHE BLOOM</h1>
+        </div>
+      </div>
+      <div class="header-right">
+      <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="dashboard"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>แดชบอร์ด</button>
+        <button class="tab-btn" data-tab="receipt"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/><path d="M9 8h6"/><path d="M9 12h6"/></svg></span>สร้างใบเสร็จ</button>
+        <button class="tab-btn" data-tab="collection"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.5 8.38 8.38 0 0 1 8.5 8.5z"/></svg></span>ทวงถาม</button>
+        <button class="tab-btn" data-tab="history"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>ประวัติ</button>
+        <button class="tab-btn" data-tab="settings"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>ตั้งค่า</button>
+      </nav>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="สลับธีมมืด/สว่าง" title="สลับธีมมืด/สว่าง">
+        <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- ========== DASHBOARD TAB ========== -->
+    <section id="tab-dashboard" class="tab-panel active">
+
+      <!-- Hero -->
+      <div class="page-hero">
+        <div class="page-hero-text">
+          <div class="page-hero-kicker">Receipt &amp; Payment Management</div>
+          <h2 class="page-hero-title font-display">ยินดีต้อนรับกลับสู่เรือนกระจก 🌿</h2>
+          <p class="page-hero-sub">ภาพรวมสัญญาผ่อนชำระทั้งหมดของวันนี้ — ติดตามงวด, ออกใบเสร็จพร้อม QR พร้อมเพย์ และทวงถามได้ในที่เดียว</p>
+        </div>
+        <div class="page-hero-deco">
+          <img src="assets/logo-gold.png" alt="">
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div>
+            <div class="stat-label">สัญญาทั้งหมด</div>
+            <div class="stat-value" id="statTotal">—</div>
+            <div class="stat-caption">สัญญาผ่อนชำระทั้งหมดในระบบ</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div>
+            <div class="stat-label">ครบกำหนดวันนี้</div>
+            <div class="stat-value" id="statDueToday">—</div>
+            <div class="stat-caption">งวดที่ควรเก็บภายในวันนี้</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div>
+            <div class="stat-label">เลยกำหนด</div>
+            <div class="stat-value" id="statOverdue">—</div>
+            <div class="stat-caption">ต้องทวงถามและคิดค่าปรับ</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div>
+            <div class="stat-label">ยอดรวมที่ต้องชำระ</div>
+            <div class="stat-value" id="statTotalAmount">—</div>
+            <div class="stat-caption">เฉพาะสัญญาที่ยังไม่ปิด</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Collection Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title font-display">ภาพรวมการเก็บเงินรายเดือน</h3>
+            <p class="chart-desc">ยอดเงินที่เก็บได้จากใบเสร็จที่ยืนยันแล้ว • 6 เดือนล่าสุด</p>
+          </div>
+          <div class="chart-total-block">
+            <div class="chart-total-label">รวมทั้งหมด</div>
+            <div class="chart-total font-display" id="chartTotal">—</div>
+          </div>
+        </div>
+        <div id="monthlyChart" class="chart-container"></div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาชื่อลูกค้า / เลขสัญญา...">
+        <select id="filterStatus" class="filter-select">
+          <option value="all">ทั้งหมด</option>
+          <option value="due_today">ครบกำหนดวันนี้</option>
+          <option value="overdue">เลยกำหนด</option>
+          <option value="paid">ชำระแล้ว</option>
+          <option value="pending">ค้างชำระ</option>
+        </select>
+        <button id="addCustomerBtn" class="btn-primary" onclick="openCustomerModal()">+ เพิ่มลูกค้าใหม่</button>
+        <button id="addContractBtn" class="btn-secondary" onclick="openContractModal()">+ เพิ่มสัญญาใหม่</button>
+      </div>
+
+      <div id="customerList" class="customer-list">
+        <div class="loading-state">กำลังโหลดข้อมูล...</div>
+      </div>
+    </section>
+
+    <!-- ========== RECEIPT TAB ========== -->
+    <section id="tab-receipt" class="tab-panel">
+      <div class="receipt-layout">
+        <div class="receipt-controls">
+          <h2 class="section-title font-display">สร้างใบเสร็จ</h2>
+          <p class="section-desc">เลือกลูกค้าเพื่อสร้างใบเสร็จรวมรายการที่ต้องชำระ</p>
+          <select id="receiptCustomerSelect" class="form-select">
+            <option value="">— เลือกลูกค้า —</option>
+          </select>
+          <div id="receiptItemsList" class="receipt-items-list"></div>
+          <div id="receiptSummary" class="receipt-summary" style="display:none;">
+            <div class="summary-row">
+              <span>ยอดรวมที่ต้องชำระ</span>
+              <span id="receiptTotal" class="summary-total font-display">฿0</span>
+            </div>
+            <div class="receipt-actions">
+              <button id="generateReceiptBtn" class="btn-primary">สร้างใบเสร็จ + QR</button>
+              <button id="printReceiptBtn" class="btn-secondary" style="display:none;">พิมพ์ใบเสร็จ</button>
+              <button id="downloadReceiptBtn" class="btn-secondary" style="display:none;">⬇ ดาวน์โหลด PNG</button>
+              <button id="saveReceiptBtn" class="btn-outline" style="display:none;">บันทึกลงระบบ</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receipt Preview -->
+        <div id="receiptPreview" class="receipt-preview" style="display:none;">
+          <div class="receipt-paper" id="receiptPaper">
+            <svg class="receipt-corner receipt-corner-tl" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1"><path d="M1 45 V14 Q1 1 14 1 H45"/><path d="M6 45 V16 Q6 6 16 6 H45" opacity="0.55"/><path d="M10 22 C14 18, 18 18, 20 22 C18 26, 14 26, 10 22 Z" opacity="0.8"/><circle cx="24" cy="22" r="1.4" opacity="0.8"/></svg>
+            <svg class="receipt-corner receipt-corner-tr" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1"><path d="M1 45 V14 Q1 1 14 1 H45"/><path d="M6 45 V16 Q6 6 16 6 H45" opacity="0.55"/><path d="M10 22 C14 18, 18 18, 20 22 C18 26, 14 26, 10 22 Z" opacity="0.8"/><circle cx="24" cy="22" r="1.4" opacity="0.8"/></svg>
+            <svg class="receipt-corner receipt-corner-bl" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1"><path d="M1 45 V14 Q1 1 14 1 H45"/><path d="M6 45 V16 Q6 6 16 6 H45" opacity="0.55"/><path d="M10 22 C14 18, 18 18, 20 22 C18 26, 14 26, 10 22 Z" opacity="0.8"/><circle cx="24" cy="22" r="1.4" opacity="0.8"/></svg>
+            <svg class="receipt-corner receipt-corner-br" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1"><path d="M1 45 V14 Q1 1 14 1 H45"/><path d="M6 45 V16 Q6 6 16 6 H45" opacity="0.55"/><path d="M10 22 C14 18, 18 18, 20 22 C18 26, 14 26, 10 22 Z" opacity="0.8"/><circle cx="24" cy="22" r="1.4" opacity="0.8"/></svg>
+            <div class="receipt-header">
+              <div class="receipt-logo"><img src="assets/logo-gold.png" alt=""></div>
+              <div class="receipt-brand font-display">NICHE BLOOM</div>
+              <div class="receipt-tagline">CURATED BOTANICALS &amp; FLORISTRY</div>
+              <div class="receipt-loc">PAKKRET, THAILAND</div>
+            </div>
+            <div class="receipt-divider"></div>
+            <div class="receipt-meta">
+              <div><span class="meta-label">เลขที่ใบเสร็จ:</span> <span id="rcptNo" class="meta-value">—</span></div>
+              <div><span class="meta-label">วันที่:</span> <span id="rcptDate" class="meta-value">—</span></div>
+            </div>
+            <div class="receipt-customer">
+              <div><span class="meta-label">ลูกค้า:</span> <span id="rcptCustomer" class="meta-value">—</span></div>
+              <div><span class="meta-label">รหัส:</span> <span id="rcptCustNo" class="meta-value">—</span></div>
+            </div>
+            <table class="receipt-table">
+              <thead>
+                <tr>
+                  <th>รายการ</th>
+                  <th class="text-right">ยอดผ่อน/งวด</th>
+                  <th class="text-center">งวดที่</th>
+                  <th class="text-center">งวดที่เหลือ</th>
+                  <th class="text-right">ยอดชำระ</th>
+                </tr>
+              </thead>
+              <tbody id="rcptItems"></tbody>
+              <tfoot>
+                <tr class="receipt-total-row">
+                  <td colspan="4" class="text-right">ยอดรวมที่ต้องชำระ</td>
+                  <td class="text-right" id="rcptTotal">฿0</td>
+                </tr>
+              </tfoot>
+            </table>
+            <div class="receipt-qr-section">
+              <div id="receiptQRCode" class="receipt-qr"></div>
+              <div class="receipt-qr-info">
+                <div class="qr-label">สแกนเพื่อชำระผ่านพร้อมเพย์</div>
+                <div class="qr-amount font-display" id="rcptQRAmount">฿0</div>
+                <div class="qr-promptpay-id">พร้อมเพย์: 0826822551</div>
+                <div class="qr-bank">SCB: 0932479587</div>
+              </div>
+            </div>
+            <div class="receipt-footer">
+              <div class="receipt-floral">
+                <svg viewBox="0 0 120 40" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.3">
+                  <path d="M10 20 C15 15, 20 15, 25 20 C20 25, 15 25, 10 20 Z"/>
+                  <path d="M30 20 C35 10, 45 10, 50 20 C45 30, 35 30, 30 20 Z"/>
+                  <circle cx="40" cy="20" r="3"/>
+                  <path d="M55 20 C60 15, 65 15, 70 20 C65 25, 60 25, 55 20 Z"/>
+                  <path d="M75 20 C80 10, 90 10, 95 20 C90 30, 80 30, 75 20 Z"/>
+                  <circle cx="85" cy="20" r="3"/>
+                  <path d="M100 20 C105 15, 110 15, 115 20 C110 25, 105 25, 100 20 Z"/>
+                </svg>
+              </div>
+              <p>ขอบคุณที่ใช้บริการ NICHE BLOOM</p>
+              <p class="receipt-note">ใบเสร็จนี้สร้างโดยระบบอัตโนมัติ • กรุณาเก็บไว้เป็นหลักฐาน</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== COLLECTION TAB ========== -->
+    <section id="tab-collection" class="tab-panel">
+      <div class="collection-layout">
+        <div class="collection-header">
+          <h2 class="section-title font-display">ระบบทวงถามหนี้</h2>
+          <p class="section-desc">จัดการสัญญาที่เลยกำหนดชำระ • ตั้งค่าปรับและค่าทวงถาม</p>
+        </div>
+        <div class="collection-controls">
+          <div class="control-card">
+            <label class="control-label">ค่าปรับล่าช้าเริ่มต้น (฿)</label>
+            <input type="number" id="defaultLateFee" class="control-input" value="50">
+          </div>
+          <div class="control-card">
+            <label class="control-label">ค่าทวงถามเริ่มต้น (฿)</label>
+            <input type="number" id="defaultCollectionFee" class="control-input" value="100">
+          </div>
+          <button id="applyPenaltyBtn" class="btn-primary">คำนวณปรับทั้งหมด</button>
+          <button id="sendRemindersBtn" class="btn-outline">ส่งแจ้งเตือน LINE</button>
+        </div>
+        <div id="collectionList" class="collection-list">
+          <div class="loading-state">กำลังโหลด...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== HISTORY TAB ========== -->
+    <section id="tab-history" class="tab-panel">
+      <div class="history-layout">
+        <h2 class="section-title font-display">ประวัติการชำระและใบเสร็จ</h2>
+        <div class="filter-bar">
+          <select id="historyFilter" class="filter-select">
+            <option value="all">ทั้งหมด</option>
+            <option value="pending">รอตรวจสอบ</option>
+            <option value="verified">ตรวจสอบแล้ว</option>
+            <option value="rejected">ไม่ผ่าน</option>
+            <option value="needs_review">ต้องตรวจสอบ</option>
+          </select>
+        </div>
+        <div id="historyList" class="history-list">
+          <div class="loading-state">กำลังโหลด...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SETTINGS TAB ========== -->
+    <section id="tab-settings" class="tab-panel">
+      <div class="settings-layout">
+        <h2 class="section-title font-display">ตั้งค่าระบบ</h2>
+        <div class="settings-grid">
+          <div class="setting-card">
+            <label class="setting-label">PromptPay ID</label>
+            <input type="text" id="settingPromptPay" class="setting-input" value="0826822551">
+          </div>
+          <div class="setting-card">
+            <label class="setting-label">เลขบัญชี SCB</label>
+            <input type="text" id="settingSCB" class="setting-input" value="0932479587">
+          </div>
+          <div class="setting-card">
+            <label class="setting-label">ค่าปรับล่าช้าเริ่มต้น (฿)</label>
+            <input type="number" id="settingLateFee" class="setting-input" value="50">
+          </div>
+          <div class="setting-card">
+            <label class="setting-label">ค่าทวงถามเริ่มต้น (฿)</label>
+            <input type="number" id="settingCollectionFee" class="setting-input" value="100">
+          </div>
+          <div class="setting-card">
+            <label class="setting-label">ชื่อแบรนด์</label>
+            <input type="text" id="settingBrandName" class="setting-input" value="NICHE BLOOM">
+          </div>
+          <div class="setting-card">
+            <label class="setting-label">แท็กไลน์</label>
+            <input type="text" id="settingTagline" class="setting-input" value="CURATED BOTANICALS & FLORISTRY">
+          </div>
+        </div>
+        <button id="saveSettingsBtn" class="btn-primary">บันทึกการตั้งค่า</button>
+
+        <div class="setting-info">
+          <h3 class="font-display">LINE OA Integration</h3>
+          <div class="info-row">
+            <span>Webhook URL:</span>
+            <code id="webhookUrl">—</code>
+          </div>
+          <div class="info-row">
+            <span>Channel Secret:</span>
+            <code>••••••••</code>
+          </div>
+          <div class="info-row">
+            <span>Channel Access Token:</span>
+            <code>••••••••</code>
+          </div>
+          <p class="info-note">ตั้งค่า LINE credentials ใน Vercel Environment Variables</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+</div>
+
+<!-- ========== CUSTOMER MODAL ========== -->
+<div id="customerModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="customerModalTitle" class="modal-title font-display">จัดการข้อมูลลูกค้า</h3>
+      <button class="modal-close" onclick="closeCustomerModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="custEditOldNo" value="">
+      <div class="form-group">
+        <label>รหัสลูกค้า (Customer Number)</label>
+        <input type="text" id="custNoInput" class="form-control" placeholder="เช่น CNNB007">
+      </div>
+      <div class="form-group">
+        <label>ชื่อลูกค้า (Customer Name)</label>
+        <input type="text" id="custNameInput" class="form-control" placeholder="เช่น คุณพลอย (Ploy)">
+      </div>
+      <div class="form-group">
+        <label>LINE User ID (สำหรับ Webhook / แจ้งเตือน)</label>
+        <input type="text" id="custLineUidInput" class="form-control" placeholder="เช่น U0a52938...">
+      </div>
+      <div class="form-group">
+        <label>เบอร์โทรศัพท์ (Phone Number)</label>
+        <input type="text" id="custPhoneInput" class="form-control" placeholder="เช่น 0812345678">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="deleteCustBtn" class="btn-danger" onclick="deleteCustomer()" style="display:none;">ลบลูกค้า</button>
+      <button class="btn-outline" onclick="closeCustomerModal()">ยกเลิก</button>
+      <button class="btn-primary" onclick="saveCustomer()">บันทึกข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CONTRACT MODAL ========== -->
+<div id="contractModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="contractModalTitle" class="modal-title font-display">จัดการสัญญาผ่อนชำระ</h3>
+      <button class="modal-close" onclick="closeContractModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="contractEditId" value="">
+      <div class="form-group">
+        <label>เลือกลูกค้า</label>
+        <select id="contractCustSelect" class="form-control">
+          <option value="">— เลือกลูกค้า —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ชื่อรายการ / สินค้า</label>
+        <input type="text" id="contractItemInput" class="form-control" placeholder="เช่น ช่อกุหลาบฝรั่งเศส">
+      </div>
+      <div class="form-group">
+        <label>ยอดผ่อนชำระต่องวด (บาท)</label>
+        <input type="number" id="contractInstallmentInput" class="form-control" placeholder="เช่น 1500">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label>งวดปัจจุบัน</label>
+          <input type="number" id="contractCurrentPeriodInput" class="form-control" value="1">
+        </div>
+        <div class="form-group">
+          <label>จำนวนงวดทั้งหมด</label>
+          <input type="number" id="contractTotalPeriodsInput" class="form-control" value="3">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>วันกำหนดชำระ / รอบแจ้งเตือน</label>
+        <input type="text" id="contractNotificationDayInput" class="form-control" placeholder="เช่น ทุกวันที่ 15">
+      </div>
+      <div class="form-group">
+        <label>สถานะสัญญา</label>
+        <select id="contractStatusSelect" class="form-control">
+          <option value="ค้างชำระ">ค้างชำระ</option>
+          <option value="ชำระแล้ว">ชำระแล้ว</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="deleteContractBtn" class="btn-danger" onclick="deleteContract()" style="display:none;">ลบสัญญา</button>
+      <button class="btn-outline" onclick="closeContractModal()">ยกเลิก</button>
+      <button class="btn-primary" onclick="saveContract()">บันทึกสัญญา</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
