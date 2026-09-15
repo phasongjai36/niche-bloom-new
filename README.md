@@ -1,71 +1,66 @@
-# NICHE BLOOM — Invoice & Installments
+# 🌿 NICHE BLOOM — Invoice & Installment System
 
-A bilingual (Thai + English) web app for tracking customer installment payments with PromptPay dynamic QR codes.
+> Curated Botanicals & Floristry | Pakkret, Thailand
+> Repo เดียว รวมทั้ง 2 เวอร์ชันของโปรแกรม: **Windows app** และ **Classic dashboard**
 
-## Features
-
-- **Dashboard** — Customer installments grouped by due day (1, 20, 25)
-- **Bill page** — Itemized bill with PromptPay dynamic QR (locks the total)
-- **Add new contract** — Form for installment / cash-advance
-- **Closed contracts** — View fully-paid bills
-- **Bilingual UI** — Thai + English throughout
-- **LocalStorage persistence** — Data survives reloads
-- **Print-ready** — Use the print button on bills for clean receipts
-
-## Tech Stack
-
-- React 19 + TypeScript
-- Vite 8
-- Tailwind CSS 3
-- React Router DOM
-- Zustand (with persist middleware)
-- Lucide Icons
-- qrcode (SVG generation)
-- Playfair Display + Inter fonts
-
-## Project Structure
+## โครงสร้างของ repo นี้
 
 ```
-src/
-├── components/         # Reusable UI (Shell, QR, Button)
-├── pages/              # Route pages
-│   ├── Dashboard.tsx   # /
-│   ├── Bill.tsx        # /bill
-│   ├── Add.tsx         # /add
-│   └── Closed.tsx      # /closed
-└── lib/                # Types, store, utilities
+niche-bloom-new/
+├── windows-app/     ← โปรแกรม Windows (Electron) — "NICHE BLOOM Invoice Maker"
+│   ├── main.js         Electron main process + SQLite (better-sqlite3)
+│   ├── preload.js      IPC bridge
+│   ├── index.html      UI ของแอป
+│   └── pack.ps1        สคริปต์แพ็ก zip โปรเจกต์
+├── classic/         ← แดชบอร์ดเว็บ HTML/JS (ข้อมูลบน Supabase)
+│   ├── index.html / app.js / styles.css / assets/
+│   ├── api/            LINE webhook + ส่งแจ้งเตือน (Vercel functions)
+│   ├── import-data.py  นำเข้าข้อมูลลูกค้า/สัญญาเข้า Supabase
+│   └── README.md       คู่มือใช้งานแดชบอร์ดฉบับเต็ม
+├── WORKFLOW.txt     ← สรุปขั้นตอนการทำงานของโปรเจกต์
+└── README.md        ← ไฟล์นี้
 ```
 
-## Development
+## 🚀 เริ่มใช้งาน
 
-```bash
+### เวอร์ชัน Windows app (Electron)
+```powershell
+cd windows-app
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # → dist/
-npm run preview  # serve built output
+npm start                      # รันทดลอง
+npx electron-builder --win nsis   # สร้างตัวติดตั้ง .exe → dist\
 ```
+- ฐานข้อมูลใบเสร็จเก็บที่ `C:\Users\<ชื่อ>\AppData\Roaming\niche-desktop\local-data.db`
+- **สำรองไฟล์นี้เสมอ** ก่อนลง Windows ใหม่
 
-## Deployment
-
-### Vercel (recommended)
-
-1. Push to GitHub
-2. Import the repo at https://vercel.com/new
-3. Vercel auto-detects Vite — no config needed
-4. Click **Deploy**
-
-### Manual
-
-```bash
-npm run build
-# Upload the contents of dist/ to any static host
+### เวอร์ชัน Classic dashboard (เว็บ)
+```powershell
+cd classic
+python -m http.server 4173
+# เปิดเบราว์เซอร์ http://localhost:4173
 ```
+- ข้อมูลอยู่บน Supabase cloud (ตาราง `customers`, `contracts`, `payment_logs`, `app_settings`)
+- ⚠️ โปรเจกต์ Supabase เดิม (`peucfeyxzvsnqrejnawy`) ถูกลบไปแล้ว — แดชบอร์ดจะขึ้น
+  "ไม่สามารถโหลดข้อมูลได้" จนกว่าจะสร้าง project ใหม่ + แก้ URL/key ใน `classic/app.js`
+  แล้วรัน `python classic/import-data.py --apply` เพื่อ import ข้อมูลลูกค้า/สัญญากลับ
+  (รายละเอียดครบใน `classic/README.md`)
 
-## Brand Assets
+## 🆘 กู้คืนหลังลง Windows ใหม่ (สั้น ๆ)
 
-- `public/logo-minimal.jpg` — Minimal style brand logo
-- `public/logo-clean3d.jpg` — 3D style brand logo
+1. ติดตั้ง **Node.js LTS** (nodejs.org) และ **Git** (git-scm.com)
+2. `git clone https://github.com/phasongjai36/niche-bloom-new.git`
+3. Windows app → ทำตามหัวข้อ "เวอร์ชัน Windows app" ด้านบน
+4. ถ้ามีไฟล์สำรอง `local-data.db` → คัดลอกกลับไปที่
+   `C:\Users\<ชื่อ>\AppData\Roaming\niche-desktop\local-data.db`
+5. Dashboard → ทำตามหัวข้อ "เวอร์ชัน Classic dashboard"
 
-## License
+> 📘 คู่มือกู้คืนฉบับเต็ม (เช็กลิสต์หลังลง Windows ใหม่ + แก้ปัญหาที่เจอบ่อย)
+> อยู่ในโฟลเดอร์สำรองในเครื่อง: `D:\New folderbackup\NICHE BLOOM Invoice Maker\README.md`
 
-Private — © NICHE BLOOM
+## 🔐 ข้อควรระวัง
+
+- repo นี้เป็น **private ส่วนตัว** — ห้ามแชร์สาธารณะ เพราะมีข้อมูลลูกค้า (ชื่อ/LINE UID) และคีย์ Supabase anon ฝังในโค้ด
+- ห้าม commit ไฟล์ `local-data.db` (มีข้อมูลใบเสร็จจริง) — `.gitignore` กันไว้แล้ว
+
+---
+*จัดโครงสร้างใหม่เมื่อ 16 ก.ย. 2026 — รวมทุกเวอร์ชันไว้บน main ของ repo เดียว*
